@@ -43,3 +43,17 @@ Ten en cuenta que esto difiere en una tecla del popular editor de texto `vi`, qu
 En este momento, tu espacio de trabajo está dividido (contiene dos terminales) en una dirección específica (horizontal por defecto). Cada ventana puede dividirse horizontal o verticalmente nuevamente, al igual que el espacio de trabajo. La terminología es "ventana" para un contenedor que contiene una ventana X11 (como un terminal o navegador) y "contenedor dividido" para los contenedores que consisten en una o más ventanas.
 
 Para dividir una ventana verticalmente, presiona `$mod+v` antes de crear la nueva ventana. Para dividirla horizontalmente, presiona `$mod+h`.
+
+### 2.2. Cambiando el diseño del contenedor
+Un contenedor dividido puede tener uno de los siguientes diseños:
+
+`splith/splitv`  
+Las ventanas se dimensionan de manera que cada ventana obtenga una cantidad igual de espacio en el contenedor. `splith` distribuye las ventanas horizontalmente (las ventanas están una al lado de la otra), `splitv` las distribuye verticalmente (las ventanas están una encima de la otra).
+
+`stacking`  
+Solo se muestra la ventana enfocada en el contenedor. Obtienes una lista de ventanas en la parte superior del contenedor.
+
+`tabbed`  
+El mismo principio que stacking, pero la lista de ventanas en la parte superior es solo una línea que está dividida verticalmente.
+
+Para cambiar de modo, presiona `$mod+e` para `splith/splitv` (alternará entre ambos), `$mod+s` para stacking y `$mod+w` para tabbed.
