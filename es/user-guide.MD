@@ -137,4 +137,51 @@ Esto ocurre cuando el mouse está relativamente cerca del borde de un contenedor
 #### Caída al contenedor padre
 Esto ocurre cuando el mouse está relativamente cerca del borde de un contenedor (pero aún más cerca del borde en comparación con el caso de hermano) y si ese borde también es el borde del contenedor padre. Por ejemplo, si tres contenedores están en un diseño horizontal, los bordes donde esto puede ocurrir son el borde izquierdo del contenedor izquierdo, el borde derecho del contenedor derecho y todos los bordes inferiores y superiores de los tres contenedores. Si se suelta el mouse, el contenedor primero se deja caer como un hermano del contenedor objetivo, como en el caso anterior, y luego se mueve direccionalmente como con el comando `move left|right|down|up`. Consulta [move_direction].
 
-El color del indicador coincide con la configuración de client.focused. Consulta [client_colors].
+El color del indicador coincide con la configuración de `client.focused`. Consulta [client_colors].
+
+## 3. Árbol
+
+i3 almacena toda la información sobre las salidas X11, los espacios de trabajo y la disposición de las ventanas en ellos en un árbol. El nodo raíz es la ventana raíz de X11, seguido por las salidas X11, luego las áreas de acoplamiento y un contenedor de contenido, luego los espacios de trabajo y finalmente las ventanas en sí. En versiones anteriores de i3, teníamos múltiples listas (de salidas, espacios de trabajo) y una tabla para cada espacio de trabajo. Ese enfoque resultó ser complicado de usar (ajuste), entender e implementar.
+
+### 3.1. El árbol consiste en Contenedores
+
+Los bloques de construcción de nuestro árbol son los llamados `Contenedores`. Un `Contenedor` puede alojar una ventana (es decir, una ventana X11, una que realmente puedes ver y usar, como un navegador). Alternativamente, podría contener uno o más `Contenedores`. Un ejemplo simple es el espacio de trabajo: cuando inicias i3 con un solo monitor, un solo espacio de trabajo y abres dos ventanas de terminal, terminarás con un árbol como este:
+
+![tree-layout2](../images/tree-layout2.png)
+
+![tree-shot4](../images/tree-shot4.png)
+Figura 1. Dos terminales en un espacio de trabajo estándar.
+
+### 3.2. Orientación y Contenedores Divididos
+
+Es natural usar los llamados `Contenedores Divididos` para construir un diseño cuando se utiliza un árbol como estructura de datos. En i3, cada `Contenedor` tiene una orientación (horizontal, vertical o no especificada) y la orientación depende del diseño en el que se encuentre el contenedor (vertical para splitv y stacking, horizontal para splith y tabbed). Así que, en nuestro ejemplo con el espacio de trabajo, el diseño predeterminado del `Contenedor` del espacio de trabajo es splith (la mayoría de los monitores son panorámicos hoy en día). Si cambias el diseño a splitv (`$mod+v` en la configuración predeterminada) y luego abres dos terminales, i3 configurará tus ventanas de esta manera:
+
+![tree-shot-2](../images/tree-shot2.png)
+Figura 2. Orientación Vertical del Espacio de Trabajo
+
+Una característica interesante de i3 desde la versión 4 es la capacidad de dividir cualquier cosa: supongamos que tienes dos terminales en un espacio de trabajo (con el diseño splith, es decir, orientación horizontal), y el foco está en el terminal derecho. Ahora quieres abrir otra ventana de terminal debajo de la actual. Si simplemente abres una nueva ventana de terminal, aparecerá a la derecha debido al diseño splith. En su lugar, presiona `$mod+v` para dividir el contenedor con el diseño splitv (para abrir un `Contenedor de División Horizontal`, usa `$mod+h`). Ahora puedes abrir un nuevo terminal y se abrirá debajo del actual:
+
+![tree-layout1](../images/tree-layout1.png)
+
+![tree-shot1](../images/tree-shot1.png)
+Figura 3. Contenedor de División Vertical
+
+Probablemente ya lo adivinaste: no hay límite en la profundidad que puede tener tu jerarquía de divisiones.
+
+### 3.3. Enfocar contenedor padre
+
+Sigamos con nuestro ejemplo anterior. Tenemos un terminal a la izquierda y dos terminales divididos verticalmente a la derecha, y el foco está en el terminal inferior derecho. Cuando abres un nuevo terminal, se abrirá debajo del actual.
+
+Entonces, ¿cómo puedes abrir una nueva ventana de terminal a la `derecha` de la actual? La solución es usar `enfocar contenedor padre`, lo que enfocará el `Contenedor Padre` del `Contenedor` actual. En la configuración predeterminada, usa `$mod+a` para navegar un `Contenedor` hacia arriba en el árbol (puedes repetir esto varias veces hasta llegar al `Contenedor del Espacio de Trabajo`). En este caso, enfocarías el `Contenedor de División Vertical` que está `dentro` del espacio de trabajo orientado horizontalmente. Así, las nuevas ventanas se abrirán a la derecha del `Contenedor de División Vertical`:
+
+![tree-shot3](../images/tree-shot3.png)
+Figura 4. Enfocar contenedor padre, luego abrir un nuevo terminal
+
+### 3.4. Contenedores implícitos
+
+En algunos casos, i3 necesita crear implícitamente un contenedor para cumplir con tu comando.
+
+Un ejemplo es el siguiente escenario: Inicias i3 con un solo monitor y un solo espacio de trabajo en el que abres tres ventanas de terminal. Todas estas ventanas de terminal están directamente conectadas a un nodo dentro del árbol de diseño de i3, el nodo del espacio de trabajo. Por defecto, la orientación del nodo del espacio de trabajo es `horizontal`.
+
+Ahora mueves una de estas terminales hacia abajo (`$mod+Shift+k` por defecto). La orientación del nodo del espacio de trabajo se cambiará a `vertical`. La ventana de terminal que moviste hacia abajo está directamente conectada al espacio de trabajo y aparece en la parte inferior de la pantalla. Se creó un nuevo contenedor (horizontal) para acomodar las otras dos ventanas de terminal. Notarás esto al cambiar al modo de pestañas (por ejemplo). Terminarías teniendo una pestaña con una representación del contenedor dividido (por ejemplo, "H[urxvt firefox]") y la otra siendo la ventana de terminal que moviste hacia abajo.
+ 
