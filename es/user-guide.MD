@@ -150,6 +150,7 @@ Los bloques de construcción de nuestro árbol son los llamados `Contenedores`. 
 ![tree-layout2](../images/tree-layout2.png)
 
 ![tree-shot4](../images/tree-shot4.png)
+
 Figura 1. Dos terminales en un espacio de trabajo estándar.
 
 ### 3.2. Orientación y Contenedores Divididos
@@ -157,6 +158,7 @@ Figura 1. Dos terminales en un espacio de trabajo estándar.
 Es natural usar los llamados `Contenedores Divididos` para construir un diseño cuando se utiliza un árbol como estructura de datos. En i3, cada `Contenedor` tiene una orientación (horizontal, vertical o no especificada) y la orientación depende del diseño en el que se encuentre el contenedor (vertical para splitv y stacking, horizontal para splith y tabbed). Así que, en nuestro ejemplo con el espacio de trabajo, el diseño predeterminado del `Contenedor` del espacio de trabajo es splith (la mayoría de los monitores son panorámicos hoy en día). Si cambias el diseño a splitv (`$mod+v` en la configuración predeterminada) y luego abres dos terminales, i3 configurará tus ventanas de esta manera:
 
 ![tree-shot-2](../images/tree-shot2.png)
+
 Figura 2. Orientación Vertical del Espacio de Trabajo
 
 Una característica interesante de i3 desde la versión 4 es la capacidad de dividir cualquier cosa: supongamos que tienes dos terminales en un espacio de trabajo (con el diseño splith, es decir, orientación horizontal), y el foco está en el terminal derecho. Ahora quieres abrir otra ventana de terminal debajo de la actual. Si simplemente abres una nueva ventana de terminal, aparecerá a la derecha debido al diseño splith. En su lugar, presiona `$mod+v` para dividir el contenedor con el diseño splitv (para abrir un `Contenedor de División Horizontal`, usa `$mod+h`). Ahora puedes abrir un nuevo terminal y se abrirá debajo del actual:
@@ -164,6 +166,7 @@ Una característica interesante de i3 desde la versión 4 es la capacidad de div
 ![tree-layout1](../images/tree-layout1.png)
 
 ![tree-shot1](../images/tree-shot1.png)
+
 Figura 3. Contenedor de División Vertical
 
 Probablemente ya lo adivinaste: no hay límite en la profundidad que puede tener tu jerarquía de divisiones.
@@ -175,6 +178,7 @@ Sigamos con nuestro ejemplo anterior. Tenemos un terminal a la izquierda y dos t
 Entonces, ¿cómo puedes abrir una nueva ventana de terminal a la `derecha` de la actual? La solución es usar `enfocar contenedor padre`, lo que enfocará el `Contenedor Padre` del `Contenedor` actual. En la configuración predeterminada, usa `$mod+a` para navegar un `Contenedor` hacia arriba en el árbol (puedes repetir esto varias veces hasta llegar al `Contenedor del Espacio de Trabajo`). En este caso, enfocarías el `Contenedor de División Vertical` que está `dentro` del espacio de trabajo orientado horizontalmente. Así, las nuevas ventanas se abrirán a la derecha del `Contenedor de División Vertical`:
 
 ![tree-shot3](../images/tree-shot3.png)
+
 Figura 4. Enfocar contenedor padre, luego abrir un nuevo terminal
 
 ### 3.4. Contenedores implícitos
