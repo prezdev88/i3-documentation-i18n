@@ -189,3 +189,91 @@ Un ejemplo es el siguiente escenario: Inicias i3 con un solo monitor y un solo e
 
 Ahora mueves una de estas terminales hacia abajo (`$mod+Shift+k` por defecto). La orientación del nodo del espacio de trabajo se cambiará a `vertical`. La ventana de terminal que moviste hacia abajo está directamente conectada al espacio de trabajo y aparece en la parte inferior de la pantalla. Se creó un nuevo contenedor (horizontal) para acomodar las otras dos ventanas de terminal. Notarás esto al cambiar al modo de pestañas (por ejemplo). Terminarías teniendo una pestaña con una representación del contenedor dividido (por ejemplo, "H[urxvt firefox]") y la otra siendo la ventana de terminal que moviste hacia abajo.
  
+## Configuración de i3
+
+Aquí es donde comienza la verdadera diversión ;-). La mayoría de las cosas dependen mucho de tu entorno de trabajo ideal, por lo que no podemos establecer valores predeterminados razonables para ellas.
+
+Aunque no se utiliza un lenguaje de programación para la configuración, i3 sigue siendo bastante flexible en cuanto a las cosas que normalmente quieres que haga tu gestor de ventanas.
+
+Por ejemplo, puedes configurar combinaciones de teclas para saltar a ventanas específicas, puedes configurar aplicaciones específicas para que se inicien en espacios de trabajo específicos, puedes iniciar aplicaciones automáticamente, puedes cambiar los colores de i3 y puedes vincular tus teclas para hacer cosas útiles.
+
+Para cambiar la configuración de i3, copia `/etc/i3/config` a `~/.i3/config` (o `~/.config/i3/config` si prefieres el esquema de directorios XDG) y edítalo con un editor de texto.
+
+En el primer inicio (y en todos los inicios siguientes, a menos que tengas un archivo de configuración), i3 te ofrecerá crear un archivo de configuración. Puedes indicarle al asistente que use Alt (`Mod1`) o Windows (`Mod4`) como modificador en el archivo de configuración. Además, el archivo de configuración creado usará los símbolos de teclas de tu diseño de teclado actual. Para iniciar el asistente, usa el comando `i3-config-wizard`. Ten en cuenta que no debes tener `~/.i3/config`, de lo contrario, el asistente se cerrará.
+
+Desde i3 4.0, se utiliza un nuevo formato de configuración. i3 intentará detectar automáticamente la versión del formato de un archivo de configuración basado en algunas palabras clave diferentes, pero si quieres asegurarte de que tu configuración se lea con el nuevo formato, incluye la siguiente línea en tu archivo de configuración:
+
+```bash
+# i3 config file (v4)
+```
+
+### 4.1. Directiva de inclusión
+
+Desde i3 v4.20, es posible incluir otros archivos de configuración desde tu configuración de i3.
+
+Sintaxis:
+
+```bash
+include <pattern>
+```
+
+TODO
+
+i3 expande el patrón utilizando una expansión de palabras similar a la del shell, específicamente usando la función de la biblioteca estándar de C wordexp(3).
+
+Ejemplos:
+
+```bash
+# Tilde expands to the user’s home directory:
+include ~/.config/i3/assignments.conf
+
+# Environment variables are expanded:
+include $HOME/.config/i3/assignments.conf
+
+# Wildcards are expanded:
+include ~/.config/i3/config.d/*.conf
+
+# Command substitution:
+include ~/.config/i3/`hostname`.conf
+
+# i3 loads each path only once, so including the i3 config will not result
+# in an endless loop, but in an error:
+include ~/.config/i3/config
+
+# i3 changes the working directory while parsing a config file
+# so that relative paths are interpreted relative to the directory
+# of the config file that contains the path:
+include assignments.conf
+```
+
+Si un archivo especificado no puede ser leído, por ejemplo, debido a la falta de permisos de archivo o porque es un enlace simbólico roto, i3 informará un error y continuará procesando el resto de tu configuración.
+
+Para listar todos los archivos de configuración cargados, ejecuta i3 --moreversion:
+
+```bash
+% i3 --moreversion
+Binary i3 version:  4.19.2-87-gfcae64f7+ © 2009 Michael Stapelberg and contributors
+Running i3 version: 4.19.2-87-gfcae64f7+ (pid 963940)
+Loaded i3 config:
+  /tmp/i3.cfg (main) (last modified: 2021-05-13T16:42:31 CEST, 463 seconds ago)
+  /tmp/included.cfg (included) (last modified: 2021-05-13T16:42:43 CEST, 451 seconds ago)
+  /tmp/another.cfg (included) (last modified: 2021-05-13T16:42:46 CEST, 448 seconds ago)
+```
+
+Las variables se comparten entre todos los archivos de configuración, pero ten en cuenta la siguiente limitación:
+
+- Puedes definir una variable y usarla dentro de un archivo incluido.
+  
+- No puedes usar (en el archivo principal) una variable que se haya definido dentro de un archivo incluido.
+
+Esta es una limitación técnica: la expansión de variables ocurre en una etapa separada antes de analizar las directivas de inclusión.
+
+Conceptualmente, los archivos incluidos solo pueden añadir a la configuración, no deshacer los efectos de la configuración ya procesada. Por ejemplo, solo puedes añadir nuevas combinaciones de teclas, no sobrescribir o eliminar combinaciones de teclas existentes. Esto significa:
+
+- La directiva `include` es adecuada para organizar configuraciones grandes en archivos separados, posiblemente seleccionando archivos basados en condiciones.
+
+- La directiva `include` no es adecuada para expresar "usar la configuración predeterminada con los siguientes cambios". Para ese caso, aún recomendamos copiar y modificar la configuración predeterminada.
+
+Nota:  
+> En términos de implementación, i3 actualmente no construye una gran configuración a partir de todas las directivas `include`. En su lugar, el analizador de archivos de configuración de i3 interpreta todas las directivas de configuración en su función `parse_file()`. Al procesar una directiva de configuración `include`, el analizador llama recursivamente a `parse_file()`. 
+Esto significa que el orden de evaluación de los archivos forma un árbol, o se podría decir que i3 utiliza un recorrido en profundidad (depth-first traversal).
