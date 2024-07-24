@@ -277,3 +277,160 @@ Conceptualmente, los archivos incluidos solo pueden añadir a la configuración,
 Nota:  
 > En términos de implementación, i3 actualmente no construye una gran configuración a partir de todas las directivas `include`. En su lugar, el analizador de archivos de configuración de i3 interpreta todas las directivas de configuración en su función `parse_file()`. Al procesar una directiva de configuración `include`, el analizador llama recursivamente a `parse_file()`. 
 Esto significa que el orden de evaluación de los archivos forma un árbol, o se podría decir que i3 utiliza un recorrido en profundidad (depth-first traversal).
+
+### 4.2. Comentarios
+Es posible y recomendable usar comentarios en tu archivo de configuración para documentar adecuadamente tu configuración para referencia futura. Los comentarios comienzan con un # y solo pueden usarse al principio de una línea:
+
+Ejemplos:
+
+```bash
+# This is a comment
+```
+
+
+### 4.3. Fuentes
+i3 tiene soporte tanto para fuentes X core como para fuentes FreeType (a través de Pango) para renderizar los títulos de las ventanas.
+
+Para generar una descripción de una fuente X core, puedes usar `xfontsel(1)`. Para ver caracteres especiales (Unicode), necesitas usar una fuente que soporte la codificación ISO-10646.
+
+Una descripción de fuente FreeType se compone de una familia de fuentes, un estilo, un peso, una variante, una expansión y un tamaño. Las fuentes FreeType soportan renderizado de derecha a izquierda y a menudo contienen más glifos Unicode que las fuentes X core.
+
+Si i3 no puede abrir la fuente configurada, emitirá un error en el archivo de registro y volverá a una fuente funcional.
+
+Sintaxis:
+
+```bash
+font <X core font description>
+font pango:<family list> [<style options>] <size>
+```
+
+Ejemplos:
+
+```bash
+font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+font pango:DejaVu Sans Mono 10
+font pango:DejaVu Sans Mono, Terminus Bold Semi-Condensed 11
+font pango:Terminus 11px
+```
+
+### 4.4. Combinaciones de teclas
+Una combinación de teclas hace que i3 ejecute un comando (ver más abajo) al presionar una tecla específica. i3 te permite vincular ya sea en códigos de teclas o en keysyms (también puedes mezclar tus combinaciones, aunque i3 no te protegerá de las superposiciones).
+
+- Un keysym (símbolo de tecla) es una descripción para un símbolo específico, como "a" o "b", pero también algunos más extraños como "underscore" en lugar de "_". Estos son los que usas en Xmodmap para reasignar tus teclas. Para obtener la asignación actual de tus teclas, usa `xmodmap -pke`. Para ingresar interactivamente una tecla y ver a qué keysym está configurada, usa `xev`.
+
+- Los códigos de teclas no necesitan tener un símbolo asignado (útil para teclas de acceso rápido de proveedores personalizados en algunos portátiles) y no cambiarán su significado al cambiar a un diseño de teclado diferente (cuando se usa `xmodmap`).
+
+Mi recomendación es: si cambias de diseño de teclado con frecuencia pero quieres mantener tus combinaciones en la misma ubicación física en el teclado, usa códigos de teclas. Si no cambias de diseño y quieres un archivo de configuración limpio y simple, usa keysyms.
+
+Algunas herramientas (como `import` o `xdotool`) pueden no ser capaces de ejecutarse al producirse un evento KeyPress, porque el teclado/puntero todavía está capturado. Para estas situaciones, se puede usar la bandera `--release`, que ejecutará el comando después de que se hayan liberado las teclas.
+
+Sintaxis:
+
+```bash
+bindsym [--release] [<Group>+][<Modifiers>+]<keysym> command
+bindcode [--release] [<Group>+][<Modifiers>+]<keycode> command
+```
+
+Ejemplos:
+
+```bash
+# Fullscreen
+bindsym $mod+f fullscreen toggle
+
+# Restart
+bindsym $mod+Shift+r restart
+
+# Notebook-specific hotkeys
+bindcode 214 exec --no-startup-id /home/michael/toggle_beamer.sh
+
+# Simulate ctrl+v upon pressing $mod+x
+bindsym --release $mod+x exec --no-startup-id xdotool key --clearmodifiers ctrl+v
+
+# Take a screenshot upon pressing $mod+x (select an area)
+bindsym --release $mod+x exec --no-startup-id import /tmp/latest-screenshot.png
+```
+
+Modificadores disponibles:
+
+`Mod1-Mod5, Shift, Control`  
+Modificadores estándar, ver `xmodmap(1)`
+
+`Group1, Group2, Group3, Group4`  
+Cuando se usan múltiples diseños de teclado (por ejemplo, con `setxkbmap -layout us,ru`), puedes especificar en qué grupo XKB (también llamado "layout") debería estar activa una combinación de teclas. Por defecto, las combinaciones de teclas se traducen en Group1 y están activas en todos los grupos. Si deseas sobrescribir combinaciones de teclas en uno de tus diseños, especifica el grupo correspondiente. Para compatibilidad con versiones anteriores, el grupo "Mode_switch" es un alias para Group2.
+
+TODO
+
+### 4.5. Combinaciones de ratón
+
+Una combinación de ratón hace que i3 ejecute un comando al presionar un botón específico del ratón en el ámbito del contenedor clicado (ver [command_criteria]). Puedes configurar combinaciones de ratón de manera similar a las combinaciones de teclas.
+
+Sintaxis:
+
+```bash
+bindsym [--release] [--border] [--whole-window] [--exclude-titlebar] [<Modifiers>+]button<n> command
+```
+
+De forma predeterminada, la combinación solo se ejecutará cuando hagas clic en la barra de título de la ventana. Si se proporciona la bandera `--release`, se ejecutará cuando se suelte el botón del ratón.
+
+Si se proporciona la bandera `--whole-window`, la combinación también se ejecutará cuando se haga clic en cualquier parte de la ventana, con excepción del borde. Para que una combinación se ejecute al hacer clic en el borde, especifica la bandera `--border`.
+
+Si se proporciona la bandera `--exclude-titlebar`, la barra de título no se considerará para la combinación de teclas.
+
+Ejemplos:
+
+```bash
+# The middle button over a titlebar kills the window
+bindsym --release button2 kill
+
+# The middle button and a modifier over any part of the window kills the window
+bindsym --whole-window $mod+button2 kill
+
+# The right button toggles floating
+bindsym button3 floating toggle
+bindsym $mod+button3 floating toggle
+
+# The side buttons move the window around
+bindsym button9 move left
+bindsym button8 move right
+```
+
+TODO
+
+### 4.6. Modos de combinación de teclas
+
+Puedes tener múltiples conjuntos de combinaciones de teclas usando diferentes modos de combinación. Cuando cambias a otro modo de combinación, todas las combinaciones del modo actual se liberan y solo las combinaciones definidas en el nuevo modo son válidas mientras permanezcas en ese modo de combinación. El único modo de combinación predefinido es el predeterminado, que es el modo con el que i3 inicia y al que pertenecen todas las combinaciones no definidas en un modo de combinación específico.
+
+Trabajar con modos de combinación consta de dos partes: definir un modo de combinación y cambiar a él. Para estos propósitos, hay una directiva de configuración y un comando, ambos llamados `mode`. La directiva se usa para definir las combinaciones pertenecientes a un cierto modo de combinación, mientras que el comando cambiará al modo especificado.
+
+Se recomienda usar modos de combinación en combinación con [variables] para facilitar el mantenimiento. A continuación, se muestra un ejemplo de cómo usar un modo de combinación.
+
+Ten en cuenta que es aconsejable definir combinaciones para cambiar de nuevo al modo predeterminado.
+
+Ten en cuenta que es posible usar [pango_markup] para los modos de combinación, pero necesitas habilitarlo explícitamente pasando la bandera `--pango_markup` a la definición del modo.
+
+Sintaxis:
+
+```bash
+# config directive
+mode [--pango_markup] <name>
+
+# command
+mode <name>
+```
+
+Ejemplo:
+
+```bash
+# Press $mod+o followed by either f, t, Escape or Return to launch firefox,
+# thunderbird or return to the default mode, respectively.
+set $mode_launcher Launch: [f]irefox [t]hunderbird
+bindsym $mod+o mode "$mode_launcher"
+
+mode "$mode_launcher" {
+    bindsym f exec firefox
+    bindsym t exec thunderbird
+
+    bindsym Escape mode "default"
+    bindsym Return mode "default"
+}
+```
