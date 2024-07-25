@@ -598,8 +598,85 @@ TODO
 
 Los criterios válidos son los mismos que para los comandos, consulta [command_criteria]. Solo los comandos pueden ejecutarse en tiempo de ejecución, no las directivas de configuración, consulta [list_of_commands].
 
+### 4.15. No enfocar la ventana al abrirla
 
+TODO
 
+Cuando aparece una nueva ventana, se enfocará. La directiva `no_focus` permite evitar que esto suceda y debe usarse en combinación con [command_criteria].
 
+Ten en cuenta que esto no se aplica a todos los casos, por ejemplo, cuando se alimentan datos a una aplicación en ejecución que hace que solicite ser enfocada. Para configurar el comportamiento en tales casos, consulta [focus_on_window_activation].
 
+`no_focus` también será ignorado para la primera ventana en un espacio de trabajo, ya que no debería haber una razón para no enfocar la ventana en este caso. Esto permite una mejor usabilidad en combinación con `workspace_layout`.
+
+Sintaxis:
+
+```bash
+no_focus <criteria>
+```
+
+Ejemplo:
+
+```bash
+no_focus [window_role="pop-up"]
+```
+
+### 4.16. Variables
+Como aprendiste en la sección sobre combinaciones de teclas, tendrás que configurar muchas combinaciones que contienen teclas modificadoras. Si deseas ahorrarte algo de escritura y poder cambiar el modificador que usas más adelante, las variables pueden ser útiles.
+
+Sintaxis:
+
+```bash
+set $<name> <value>
+```
+
+Ejemplo:
+
+```bash
+set $m Mod1
+bindsym $m+Shift+r restart
+```
+
+TODO
+
+Las variables se reemplazan directamente en el archivo durante el análisis. La expansión de variables no es recursiva, por lo que no es posible definir una variable con un valor que contenga otra variable. No hay un manejo especial y no hay absolutamente ningún plan para cambiar esto. Si necesitas una configuración más dinámica, deberías crear un pequeño script que genere un archivo de configuración y ejecutarlo antes de iniciar i3 (por ejemplo, en tu archivo `~/.xsession`).
+
+Consulta también [xresources] para aprender cómo crear variables basadas en recursos cargados desde la base de datos de recursos de X.
+
+TODO
+
+### 4.17. Recursos de X
+
+[variables] también se pueden crear usando un valor configurado en la base de datos de recursos de X. Esto es útil, por ejemplo, para evitar configurar valores de color dentro de la configuración de i3. En su lugar, los valores pueden configurarse una vez en la base de datos de recursos de X para lograr un tema de color coherente y fácil de mantener en muchas aplicaciones X.
+
+Definir un recurso cargará este recurso desde la base de datos de recursos y asignará su valor a la variable especificada. Esto se hace literalmente y, por lo tanto, el valor debe estar en el formato que usa i3. Se debe especificar un valor de respaldo en caso de que el recurso no se pueda cargar desde la base de datos.
+
+Sintaxis:
+
+```bash
+set_from_resource $<name> <resource_name> <fallback>
+```
+
+Ejemplo:
+
+```bash
+# The ~/.Xresources should contain a line such as
+#     *color0: #121212
+# and must be loaded properly, e.g., by using
+#     xrdb ~/.Xresources
+# This value is picked up on by other applications (e.g., the URxvt terminal
+# emulator) and can be used in i3 like this:
+set_from_resource $black i3wm.color0 #000000
+```
+
+TODO
+
+### 4.18. Colocar automáticamente clientes en espacios de trabajo específicos
+
+Para hacer que una ventana específica aparezca automáticamente en un espacio de trabajo específico, puedes usar una `asignación`. Puedes hacer coincidir ventanas usando cualquier criterio, consulta [command_criteria]. La diferencia entre assign y for_window <criteria> move to workspace es que la primera solo se ejecutará cuando la aplicación asigne la ventana (asignación significa realmente mostrarla en la pantalla) pero la segunda se ejecutará cada vez que una ventana cambie sus propiedades a algo que coincida con los criterios especificados.
+
+Por lo tanto, se recomienda que coincidas con clases de ventana (y instancias, cuando sea apropiado) en lugar de títulos de ventana siempre que sea posible porque algunas aplicaciones primero crean su ventana y luego se preocupan por establecer el título correcto. Firefox con Vimperator viene a la mente. La ventana se inicia llamándose Firefox, y solo cuando Vimperator se carga cambia el título. Como i3 obtendrá el título tan pronto como la aplicación asigne la ventana, tendrías que hacer coincidir con Firefox en este caso. Otro problema conocido es con Spotify, que no establece los indicios de clase al asignar la ventana, lo que significa que tendrás que usar una regla `for_window` para asignar Spotify a un espacio de trabajo específico. Finalmente, usar `assign [tiling]` y `assign [floating]` no es compatible.
+
+También puedes asignar una ventana para que aparezca en una salida específica. Puedes usar nombres de RandR como VGA1 o nombres relativos a la salida con el espacio de trabajo actualmente enfocado, como `left` y `down`.
+
+Las asignaciones son procesadas por i3 en el orden en que aparecen en el archivo de configuración. La primera que coincide con la ventana gana y las asignaciones posteriores no se consideran.
 
