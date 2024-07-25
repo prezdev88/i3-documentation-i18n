@@ -434,3 +434,172 @@ mode "$mode_launcher" {
     bindsym Return mode "default"
 }
 ```
+
+### 4.7. El modificador flotante
+Para mover ventanas flotantes con tu mouse, puedes agarrar su barra de título o configurar el llamado modificador flotante que puedes presionar y hacer clic en cualquier parte de la ventana para moverla. La configuración más común es usar la misma tecla que usas para gestionar ventanas (por ejemplo, Mod1). Entonces, puedes presionar Mod1, hacer clic en una ventana con el botón izquierdo del mouse y arrastrarla a la posición que desees.
+
+Al mantener presionado el modificador flotante, puedes redimensionar una ventana flotante presionando el botón derecho del mouse sobre ella y moviéndola mientras lo mantienes presionado. Si también mantienes presionada la tecla Shift, el redimensionamiento será proporcional (se conservará la relación de aspecto).
+
+Sintaxis:
+
+```bash
+floating_modifier <Modifier>
+```
+
+Ejemplo:
+
+```bash
+floating_modifier Mod1
+```
+
+### 4.8. Restringir el tamaño de las ventanas flotantes
+Se pueden especificar las dimensiones máximas y mínimas de las ventanas flotantes. Si alguna dimensión de `floating_maximum_size` se especifica como -1, esa dimensión no estará restringida con respecto a su valor máximo. Si alguna dimensión de `floating_maximum_size` no está definida o se especifica como 0, i3 usará un valor predeterminado para restringir el tamaño máximo. `floating_minimum_size` se trata de manera análoga a `floating_maximum_size`.
+
+Sintaxis:
+
+```bash
+floating_minimum_size <width> x <height>
+floating_maximum_size <width> x <height>
+```
+
+Ejemplo:
+
+```bash
+floating_minimum_size 75 x 50
+floating_maximum_size -1 x -1
+```
+
+### 4.9. Orientación para nuevos espacios de trabajo
+Los nuevos espacios de trabajo obtienen una orientación predeterminada razonable: los monitores panorámicos (cualquier monitor más ancho que alto) obtienen orientación horizontal, los monitores rotados (cualquier monitor más alto que ancho) obtienen orientación vertical.
+
+Con la directiva de configuración `default_orientation`, puedes anular ese comportamiento.
+
+Sintaxis:
+
+```bash
+default_orientation horizontal|vertical|auto
+```
+
+Ejemplo:
+
+```bash
+default_orientation vertical
+```
+
+### 4.10. Modo de diseño para nuevos contenedores
+Esta opción determina en qué modo comenzarán los nuevos contenedores a nivel de espacio de trabajo.
+
+Sintaxis:
+
+```bash
+workspace_layout default|stacking|tabbed
+```
+
+Ejemplo:
+
+```bash
+workspace_layout tabbed
+```
+
+### 4.11. Alineación del título de la ventana
+
+Esta opción determina la alineación del texto del título de la ventana. El valor predeterminado es izquierda.
+
+Sintaxis:
+
+```bash
+title_align left|center|right
+```
+
+### 4.12. Estilo de borde predeterminado para nuevas ventanas
+Esta opción determina qué estilo de borde tendrán las nuevas ventanas. El valor predeterminado es `normal`. Ten en cuenta que default_floating_border se aplica solo a las ventanas que comienzan como ventanas flotantes, por ejemplo, ventanas de diálogo, pero no a las ventanas que se flotan más tarde.
+
+Establecer el estilo de borde en `pixel` elimina las barras de título en diseños divididos. El estilo de borde `normal` te permite ajustar el ancho del borde mientras mantienes la barra de título.
+
+La barra de título siempre es visible en los diseños stacking y tabbed, y esto no se puede cambiar a través de la configuración.
+
+Sintaxis:
+
+```bash
+default_border normal|none|pixel
+default_border normal|pixel <px>
+default_floating_border normal|none|pixel
+default_floating_border normal|pixel <px>
+```
+
+Ten en cuenta que `new_window` y `new_float` han sido desaprobados en favor de las opciones anteriores y serán eliminados en una futura versión. Recomendamos encarecidamente usar las nuevas opciones en su lugar.
+
+Ejemplo:
+
+```bash
+default_border pixel
+```
+
+Los estilos de borde "normal" y "pixel" admiten un ancho de borde opcional en píxeles:
+
+Ejemplo:
+
+```bash
+# The same as default_border none
+default_border pixel 0
+
+# A 3 px border
+default_border pixel 3
+```
+
+### 4.13. Ocultar bordes adyacentes a los bordes de la pantalla
+
+Puedes ocultar los bordes de los contenedores adyacentes a los bordes de la pantalla usando `hide_edge_borders` (el valor predeterminado es `none`). Ocultar los bordes es útil si estás usando barras de desplazamiento o no quieres desperdiciar ni siquiera dos píxeles de espacio en la pantalla.
+
+La configuración "smart" oculta los bordes en los espacios de trabajo con solo una ventana visible, pero los mantiene en los espacios de trabajo con múltiples ventanas visibles.
+
+La configuración "smart_no_gaps" oculta los bordes específicos de los bordes de un contenedor si el contenedor es el único contenedor en su espacio de trabajo y los márgenes hacia el borde de la pantalla son `0`.
+
+`hide_edge_borders` ha reemplazado la antigua sintaxis `smart_borders`. Usa la primera en lugar de la segunda.
+
+Sintaxis:
+
+```bash
+hide_edge_borders none|vertical|horizontal|both|smart|smart_no_gaps
+```
+
+Ejemplo:
+
+```bash
+hide_edge_borders vertical
+```
+
+### 4.14. Comandos arbitrarios para ventanas específicas (for_window)
+
+Con la directiva `for_window`, puedes hacer que i3 ejecute cualquier comando cuando encuentre una ventana específica. Esto se puede usar para establecer ventanas en modo flotante o para cambiar su estilo de borde, por ejemplo.
+
+Sintaxis:
+
+```bash
+for_window <criteria> <command>
+```
+
+Ejemplo:
+
+```bash
+# enable floating mode for all XTerm windows
+for_window [class="XTerm"] floating enable
+
+# Make all urxvts use a 1-pixel border:
+for_window [class="urxvt"] border pixel 1
+
+# A less useful, but rather funny example:
+# makes the window floating as soon as I change
+# directory to ~/work
+for_window [title="x200: ~/work"] floating enable
+```
+
+TODO
+
+Los criterios válidos son los mismos que para los comandos, consulta [command_criteria]. Solo los comandos pueden ejecutarse en tiempo de ejecución, no las directivas de configuración, consulta [list_of_commands].
+
+
+
+
+
+
