@@ -680,3 +680,145 @@ También puedes asignar una ventana para que aparezca en una salida específica.
 
 Las asignaciones son procesadas por i3 en el orden en que aparecen en el archivo de configuración. La primera que coincide con la ventana gana y las asignaciones posteriores no se consideran.
 
+### 4.19. Iniciar aplicaciones automáticamente al iniciar i3
+Usando la palabra clave `exec` fuera de una combinación de teclas, puedes configurar qué comandos serán ejecutados por i3 en el inicio inicial. Los comandos `exec` no se ejecutarán al reiniciar i3; si necesitas que un comando se ejecute también al reiniciar i3, debes usar la palabra clave `exec_always`. Estos comandos se ejecutarán en orden.
+
+TODO
+
+Consulta [command_chaining] para obtener detalles sobre el significado especial de `;` (punto y coma) y `,` (coma): encadenan comandos en i3, por lo que necesitas usar cadenas entre comillas (como se muestra en [exec_quoting]) si aparecen en tu comando.
+
+Sintaxis:
+
+```bash
+exec [--no-startup-id] <command>
+exec_always [--no-startup-id] <command>
+```
+
+Ejemplo:
+
+```bash
+exec chromium
+exec_always ~/my_script.sh
+
+# Execute the terminal emulator urxvt, which is not yet startup-notification aware.
+exec --no-startup-id urxvt
+```
+
+TODO
+
+La bandera --no-startup-id se explica en [exec].
+
+### 4.20. Colocar automáticamente espacios de trabajo en pantallas específicas
+
+Si asignas clientes a espacios de trabajo, puede ser útil colocar los espacios de trabajo en pantallas específicas. Además, la asignación de espacios de trabajo a pantallas determinará qué espacio de trabajo usa i3 para una nueva pantalla al agregar pantallas o al iniciar (por ejemplo, de forma predeterminada, usará 1 para la primera pantalla, 2 para la segunda pantalla y así sucesivamente).
+
+Sintaxis:
+
+```bash
+workspace <workspace> output <output1> [output2]…
+```
+
+El `output` es el nombre de la salida RandR a la que conectas tu pantalla. En un portátil, podrías tener VGA1 y LVDS1 como nombres de salida. Puedes ver las salidas disponibles ejecutando `xrandr --current`.
+
+Si tu servidor X soporta RandR 1.5 o más reciente, i3 usará objetos de monitor RandR en lugar de objetos de salida. Ejecuta `xrandr --listmonitors` para ver una lista. Por lo general, un objeto de monitor contiene exactamente una salida y tiene el mismo nombre que la salida; pero si ese no es el caso, puedes especificar el nombre del monitor o de la salida en la configuración de i3. Por ejemplo, el Dell UP2414Q usa dos escaladores internamente, por lo que sus nombres de salida podrían ser “DP1” y “DP2”, pero el nombre del monitor es “Dell UP2414Q”.
+
+(Ten en cuenta que incluso si especificas el nombre de una salida que no abarca todo el monitor, i3 seguirá usando toda el área del monitor contenedor en lugar de solo la del output).
+
+Puedes especificar múltiples salidas. Se usará la primera disponible.
+
+Si usas espacios de trabajo con nombre, deben ir entre comillas:
+
+Ejemplo:
+
+```bash
+workspace 1 output LVDS1
+workspace 2 output primary
+workspace 5 output VGA1 LVDS1
+workspace "2: vim" output VGA1
+```
+
+### 4.21. Cambiar colores
+
+Puedes cambiar todos los colores que i3 utiliza para dibujar las decoraciones de las ventanas.
+
+Sintaxis:
+
+```bash
+<colorclass> <border> <background> <text> <indicator> <child_border>
+```
+
+Donde colorclass puede ser uno de los siguientes:
+
+`client.focused`
+Un cliente que actualmente tiene el foco.
+
+`client.focused_inactive`
+Un cliente que es el enfocado de su contenedor, pero que no tiene el foco en este momento.
+
+`client.focused_tab_title`
+Título del contenedor de pestaña o pila que es el padre del contenedor enfocado, pero que no está directamente enfocado. Por defecto, utiliza focused_inactive si no se especifica y no usa los colores de indicator y child_border.
+
+`client.unfocused`
+Un cliente que no es el enfocado de su contenedor.
+
+`client.urgent`
+Un cliente que tiene activado su indicador de urgencia.
+
+`client.placeholder`
+El color de fondo y el color del texto se utilizan para dibujar el contenido de la ventana de marcador de posición (cuando se restauran diseños). El borde y el indicador se ignoran.
+
+`client.background`
+Color de fondo que se usará para pintar el fondo de la ventana del cliente sobre la cual se renderizará el cliente. Solo los clientes que no cubren toda el área de esta ventana exponen el color. Ten en cuenta que esta clase de color solo toma un solo color.
+
+Los colores están en formato hexadecimal HTML (#rrggbb, opcionalmente #rrggbbaa), ve el siguiente ejemplo:
+
+Ejemplos (colores predeterminados):
+
+```bash
+# class                 border  backgr. text    indicator child_border
+client.focused          #4c7899 #285577 #ffffff #2e9ef4   #285577
+client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
+client.unfocused        #333333 #222222 #888888 #292d2e   #222222
+client.urgent           #2f343a #900000 #ffffff #900000   #900000
+client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
+
+client.background       #ffffff
+```
+
+Ten en cuenta que para las decoraciones de la ventana, el color alrededor de la ventana secundaria es el "child_border", y el color "border" son solo las dos líneas delgadas alrededor de la barra de título.
+
+El color del indicador se utiliza para indicar dónde se abrirá una nueva ventana. Para los contenedores divididos horizontalmente, el borde derecho se pintará con el color del indicador; para los contenedores divididos verticalmente, el borde inferior. Esto solo se aplica a ventanas individuales dentro de un contenedor dividido, que de otro modo son indistinguibles de las ventanas individuales fuera de un contenedor dividido.
+
+### 4.22. Comunicación entre procesos
+
+i3 utiliza sockets Unix para proporcionar una interfaz IPC. Esto permite a programas de terceros obtener información de i3, como los espacios de trabajo actuales (para mostrar una barra de espacios de trabajo) y controlar i3.
+
+Por defecto, se creará un socket IPC en `$XDG_RUNTIME_DIR/i3/ipc-socket.%p` si el directorio está disponible, y como alternativa en `/tmp/i3-%u.XXXXXX/ipc-socket.%p`, donde `%u` es tu nombre de usuario de UNIX, `%p` es el PID de i3 y XXXXXX es una cadena de caracteres aleatorios del conjunto de caracteres de nombre de archivo portátil (ver mkdtemp(3)).
+
+Puedes anular la ruta predeterminada a través de la variable de entorno `I3SOCK` o especificando la directiva `ipc-socket`. Sin embargo, esto no se recomienda, ya que i3 hace lo correcto por defecto. Si decides cambiarlo, se recomienda encarecidamente establecerlo en una ubicación en tu directorio personal para que ningún otro usuario pueda crear ese directorio.
+
+Ejemplos:
+
+```bash
+ipc-socket ~/.i3/i3-ipc.sock
+```
+
+TODO
+
+Luego puedes usar la aplicación i3-msg para ejecutar cualquier comando listado en [list_of_commands].
+
+### 4.23. El foco sigue al ratón
+
+Por defecto, el foco de la ventana sigue los movimientos de tu ratón cuando el ratón cruza los bordes de las ventanas. Sin embargo, si tienes una configuración donde tu ratón suele estar en tu camino (como un touchpad en tu portátil que no deseas desactivar por completo), es posible que desees desactivar el `foco sigue al ratón (focus follows mouse)` y controlar el foco solo usando tu teclado. El ratón seguirá siendo útil dentro de la ventana actualmente activa (por ejemplo, para hacer clic en enlaces en tu ventana del navegador).
+
+Sintaxis:
+
+```bash
+focus_follows_mouse yes|no
+```
+
+Ejemplos:
+
+```bash
+focus_follows_mouse no
+```
