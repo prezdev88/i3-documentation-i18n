@@ -822,3 +822,134 @@ Ejemplos:
 ```bash
 focus_follows_mouse no
 ```
+
+### 4.24. Teletransporte del ratón
+
+Por defecto, al cambiar el foco a una ventana en una salida diferente (por ejemplo, enfocando una ventana en el espacio de trabajo 3 en la salida VGA-1, viniendo del espacio de trabajo 2 en la salida LVDS-1), el cursor del ratón se mueve al centro de esa ventana.
+
+Con la opción `mouse_warping`, puedes controlar cuándo debe teletransportarse el cursor del ratón. `none` desactiva el teletransporte por completo, mientras que `output` es el comportamiento predeterminado descrito anteriormente.
+
+Sintaxis:
+
+```bash
+mouse_warping output|none
+```
+
+Ejemplos:
+
+```bash
+mouse_warping none
+```
+
+### 4.25. Ventanas emergentes durante el modo de pantalla completa
+
+Cuando estás en modo de pantalla completa, algunas aplicaciones aún abren ventanas emergentes (toma Xpdf como ejemplo). Esto se debe a que estas aplicaciones pueden no ser conscientes de que están en modo de pantalla completa (no verifican la pista correspondiente). Hay tres cosas que se pueden hacer en esta situación:
+
+1. Mostrar la ventana emergente solo si pertenece a la aplicación en pantalla completa. Este es el valor predeterminado y debería ser un comportamiento razonable para la mayoría de los usuarios.
+
+2. Ignorar la ventana emergente (no mapearla). Esto no te interrumpirá mientras estés en pantalla completa. Sin embargo, algunas aplicaciones pueden reaccionar mal a esto (bloqueo hasta que salgas de la pantalla completa).
+
+3. Salir del modo de pantalla completa.
+
+Sintaxis:
+
+```bash
+popup_during_fullscreen smart|ignore|leave_fullscreen
+```
+
+Ejemplos:
+
+```bash
+popup_during_fullscreen smart
+```
+
+### 4.26. Envolvimiento del foco
+
+Por defecto, cuando estás en un contenedor con varias ventanas o contenedores secundarios, la ventana opuesta se enfocará al intentar mover el foco sobre el borde de un contenedor (y no hay otros contenedores en esa dirección), es decir, el foco se envuelve.
+
+Si lo deseas, puedes desactivar este comportamiento configurando la directiva `focus_wrapping` con el valor `no`.
+
+Cuando está habilitado, el envolvimiento del foco no ocurre por defecto si hay otra ventana o contenedor en la dirección especificada, y el foco se establecerá en esa ventana o contenedor. Este es el comportamiento predeterminado para que puedas navegar a todas tus ventanas sin tener que usar `focus parent`.
+
+Si deseas que el foco `siempre` se envuelva y eres consciente de usar `focus parent` para cambiar a diferentes contenedores, puedes configurar focus_wrapping con el valor `force`.
+
+Para restringir el foco dentro del espacio de trabajo actual, configura `focus_wrapping` con el valor `workspace`. Necesitarás usar `focus parent` hasta que se seleccione un espacio de trabajo para cambiar a un espacio de trabajo diferente usando los comandos de foco (el comando `workspace` seguirá funcionando como se espera).
+
+Sintaxis:
+
+```bash
+focus_wrapping yes|no|force|workspace
+
+# Legacy syntax, equivalent to "focus_wrapping force"
+force_focus_wrapping yes
+```
+
+Ejemplos:
+
+```bash
+# Disable focus wrapping
+focus_wrapping no
+
+# Force focus wrapping
+focus_wrapping force
+```
+
+### 4.27. Forzar Xinerama
+
+Como se explica en detalle en [https://i3wm.org/docs/multi-monitor.html](https://i3wm.org/docs/multi-monitor.html), algunos controladores de video X11 (especialmente el controlador binario de nVidia) solo proporcionan soporte para Xinerama en lugar de RandR. En tal situación, i3 debe ser configurado explícitamente para usar la API inferior de Xinerama y, por lo tanto, no proporcionar soporte para reconfigurar tus pantallas sobre la marcha (se leen solo una vez al iniciar y eso es todo).
+
+Para las personas que no pueden modificar su `~/.xsession` para agregar el parámetro de línea de comandos `--force-xinerama`, se proporciona una opción de configuración:
+
+Sintaxis:
+
+```bash
+force_xinerama yes|no
+```
+
+Ejemplos:
+
+```bash
+force_xinerama yes
+```
+
+También ten en cuenta que los nombres de tus salidas no son descriptivos (como `HDMI1`) cuando usas Xinerama, en su lugar se enumeran comenzando desde 0: `xinerama-0`, `xinerama-1`, ...
+
+### 4.28. Cambio automático de ida y vuelta al cambiar al espacio de trabajo actual
+
+TODO
+
+Esta directiva de configuración habilita el cambio automático de `back_and_forth` del espacio de trabajo (ver [back_and_forth]) al cambiar al espacio de trabajo que está actualmente enfocado.
+
+Por ejemplo: Supongamos que estás en el espacio de trabajo "1: www" y cambias a "2: IM" usando mod+2 porque alguien te envió un mensaje. No necesitas recordar de dónde vienes ahora, solo puedes presionar $mod+2 nuevamente para volver a "1: www".
+
+Sintaxis:
+
+```bash
+workspace_auto_back_and_forth yes|no
+```
+
+Ejemplos:
+
+```bash
+workspace_auto_back_and_forth yes
+```
+
+### 4.29. Retrasar el restablecimiento del indicador de urgencia al cambiar de espacio de trabajo
+
+Si una aplicación en otro espacio de trabajo establece un indicador de urgencia, cambiar a este espacio de trabajo puede llevar al enfoque inmediato de la aplicación, lo que también significa que el color de la decoración de la ventana se restablecería inmediatamente a `client.focused`. Esto podría dificultar innecesariamente determinar qué ventana originó el evento.
+
+Para evitar esto, puedes decirle a i3 que retrase el restablecimiento del estado de urgencia durante un cierto tiempo usando la directiva `force_display_urgency_hint`. Establecer el valor en 0 desactiva esta función.
+
+El valor predeterminado es 500ms.
+
+Sintaxis:
+
+```bash
+force_display_urgency_hint <timeout> ms
+```
+
+Ejemplos:
+
+```bash
+force_display_urgency_hint 500 ms
+```
