@@ -680,6 +680,48 @@ También puedes asignar una ventana para que aparezca en una salida específica.
 
 Las asignaciones son procesadas por i3 en el orden en que aparecen en el archivo de configuración. La primera que coincide con la ventana gana y las asignaciones posteriores no se consideran.
 
+Sintaxis:
+
+```bash
+assign <criteria> [→] [workspace] [number] <workspace>
+assign <criteria> [→] output left|right|up|down|primary|nonprimary|<output>
+```
+
+Ejemplo:
+
+```bash
+# Assign URxvt terminals to workspace 2
+assign [class="URxvt"] 2
+
+# Same thing, but more precise (exact match instead of substring)
+assign [class="^URxvt$"] 2
+
+# Same thing, but with a beautiful arrow :)
+assign [class="^URxvt$"] → 2
+
+# Assignment to a named workspace
+assign [class="^URxvt$"] → work
+
+# Assign to the workspace with number 2, regardless of name
+assign [class="^URxvt$"] → number 2
+
+# You can also specify a number + name. If the workspace with number 2 exists,
+# assign will skip the text part.
+assign [class="^URxvt$"] → number "2: work"
+
+# Start urxvt -name irssi
+assign [class="^URxvt$" instance="^irssi$"] → 3
+
+# Assign urxvt to the output right of the current one
+assign [class="^URxvt$"] → output right
+
+# Assign urxvt to the primary output
+assign [class="^URxvt$"] → output primary
+
+# Assign urxvt to the first non-primary output
+assign [class="^URxvt$"] → output nonprimary
+```
+
 ### 4.19. Iniciar aplicaciones automáticamente al iniciar i3
 Usando la palabra clave `exec` fuera de una combinación de teclas, puedes configurar qué comandos serán ejecutados por i3 en el inicio inicial. Los comandos `exec` no se ejecutarán al reiniciar i3; si necesitas que un comando se ejecute también al reiniciar i3, debes usar la palabra clave `exec_always`. Estos comandos se ejecutarán en orden.
 
