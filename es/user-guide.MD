@@ -995,3 +995,49 @@ Ejemplos:
 ```bash
 force_display_urgency_hint 500 ms
 ```
+
+### 4.30. Focus on window activation
+
+TODO
+
+Si una ventana se activa, por ejemplo, a través de google-chrome www.google.com, puede solicitar tomar el foco. Dado que esto podría no ser preferible, se pueden configurar diferentes reacciones.
+
+Ten en cuenta que esto podría no afectar a las ventanas que se están abriendo. Para evitar que las ventanas nuevas se enfoquen, consulta [no_focus].
+
+Sintaxis:
+
+```bash
+focus_on_window_activation smart|urgent|focus|none
+```
+
+`smart`
+Este es el comportamiento predeterminado. Si la ventana que solicita el foco está en un espacio de trabajo activo, recibirá el foco. De lo contrario, se establecerá el indicador de urgencia.
+
+`urgent`
+La ventana siempre se marcará como urgente, pero no se robará el foco.
+
+`focus`
+La ventana siempre se enfocará y no se marcará como urgente.
+
+`none`
+La ventana no será enfocada ni marcada como urgente.
+
+### 4.31. Dibujar marcas en la decoración de la ventana
+
+TODO
+
+Si está activado, las marcas (consulta [vim_like_marks]) en las ventanas se dibujan en su decoración. Sin embargo, cualquier marca que comience con un guion bajo en su nombre (`_`) no se dibujará, incluso si esta opción está activada.
+
+El valor predeterminado para esta opción es `yes`.
+
+Sintaxis:
+
+```bash
+show_marks yes|no
+```
+
+Ejemplo:
+
+```bash
+show_marks yes
+```
